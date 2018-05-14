@@ -90,14 +90,21 @@ public class BodyController : MonoBehaviour {
                 ParticleController particle2 = pInstance2.GetComponent<ParticleController>();
 
                 float bounce = particle1.getBouncyFactor();
+                Debug.Log("initial speed:" + particle1.getVelocity());
+                Debug.Log("delta t: " + Time.deltaTime);
+                Debug.Log("bounce: " + bounce);
+                Debug.Log("H[j] " + H[j]);
+                Debug.Log("H[i] " + H[i]);
+                Debug.Log("W[i, j] " + W[i, j]);
+                Debug.Log("N[i, j] " + N[i, j]);
                 Vector3 v   = particle1.getVelocity()
-                            + Time.deltaTime
-                            * bounce
+                            + //Time.deltaTime
+                             bounce
                             * (H[i] + H[j])
                             * W[i, j]
                             * N[i, j];
                 particle1.setVelocity(v);
-                Debug.Log(v);
+                Debug.Log("v: " + v);
             }
         }
         /*

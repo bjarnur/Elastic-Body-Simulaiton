@@ -95,6 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26313192b966e76498cf3adb2283d191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gravitationalForce: -0.1
+  bouncyFactor: 2
 --- !u!135 &135129996292924692
 SphereCollider:
   m_ObjectHideFlags: 1
