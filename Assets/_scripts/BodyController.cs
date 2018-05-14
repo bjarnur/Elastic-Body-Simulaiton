@@ -52,31 +52,30 @@ public class BodyController : MonoBehaviour {
             ParticleController particle1 = pInstance1.GetComponent<ParticleController>();
             Vector3 center = particle1.getCenter();
             float radius = particle1.getRadius();
+            float W_i = 0.0f;
 
-            for(int j = 0; j < particles.Count; j++)
+            for (int j = 0; j < particles.Count; j++)
             {
                 GameObject pInstance2 = particles[j];
                 if (Object.ReferenceEquals(pInstance1, pInstance2)) continue;
-
-                float W_i = 0.0f;
+                
                 ParticleController particle2 = pInstance2.GetComponent<ParticleController>();
                 Vector3 centerToCheck = particle2.getCenter();
                 float distance = Vector3.Distance(center, centerToCheck);
-
                 if (distance < radius * 2)
                 {
                     //Compute normalized relative posision
                     N[i, j] = (centerToCheck - center).normalized;
                     
                     //Compute 1 - distance/diameter
-                    W[i, j] = 1 - (distance / (radius * 2));
+                    W[i, j] = Mathf.Abs(1 - (distance / (radius * 2)));
                     W_i += W[i, j];
-
+                    
                     //Just for convenience
                     collide[i, j] = true;
                 }                
-                H[i] = Mathf.Max(0, weight_coefficient * (W_i - avg_weight));                
             }
+            H[i] = Mathf.Max(0, weight_coefficient * (W_i - avg_weight));
         }
 
         for(int i = 0; i < particles.Count; i++)
@@ -90,6 +89,7 @@ public class BodyController : MonoBehaviour {
                 ParticleController particle2 = pInstance2.GetComponent<ParticleController>();
 
                 float bounce = particle1.getBouncyFactor();
+                /*
                 Debug.Log("initial speed:" + particle1.getVelocity());
                 Debug.Log("delta t: " + Time.deltaTime);
                 Debug.Log("bounce: " + bounce);
@@ -97,14 +97,15 @@ public class BodyController : MonoBehaviour {
                 Debug.Log("H[i] " + H[i]);
                 Debug.Log("W[i, j] " + W[i, j]);
                 Debug.Log("N[i, j] " + N[i, j]);
+                */
                 Vector3 v   = particle1.getVelocity()
-                            + //Time.deltaTime
-                             bounce
+                            + Time.deltaTime
+                            * bounce
                             * (H[i] + H[j])
                             * W[i, j]
                             * N[i, j];
                 particle1.setVelocity(v);
-                Debug.Log("v: " + v);
+                //Debug.Log("v: " + v);
             }
         }
         /*

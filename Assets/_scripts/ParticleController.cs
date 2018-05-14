@@ -31,7 +31,7 @@ public class ParticleController : MonoBehaviour {
         if(pos.y < 0)
         {
             transform.position = new Vector3(pos.x, -pos.y / bouncyFactor, pos.z);
-            speed = -(speed / bouncyFactor);
+            speed = (new Vector3(speed.x, -speed.y, speed.z)/ bouncyFactor);
         }
     }
 
