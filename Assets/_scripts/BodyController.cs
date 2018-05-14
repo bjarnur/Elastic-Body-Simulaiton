@@ -4,21 +4,26 @@ using UnityEngine;
 
 public class BodyController : MonoBehaviour {
 
-    public float speed;
-
-    private Rigidbody rb;
-    private int count;
-
+    public Vector3 topLeft;
+    public Vector3 bottomRight;
+    public float spread;
+    public GameObject prefab;    
+    
     // Use this for initialization
     void Start () {
-        rb = GetComponent<Rigidbody>();
-        count = 0;
-        //setCounterText();
-        //winText.text = "";
+                
+        for(float x = topLeft.x; x < bottomRight.x; x += spread)
+        {
+            for(float y = topLeft.y; y > bottomRight.y; y -= spread)
+            {
+                Instantiate(prefab, new Vector3(x, y, 0), Quaternion.identity);
+            }
+        }
     }
 	
 	// Update is called once per frame
 	void Update () {
+        /*
         //Vector3 movement = new Vector3(0, -9, 0);
         //rb.AddForce(movement);
 
@@ -33,6 +38,6 @@ public class BodyController : MonoBehaviour {
                 vertices[i].x++;
             }                
         }
-        mesh.vertices = vertices;
+        mesh.vertices = vertices;*/
     }
 }
