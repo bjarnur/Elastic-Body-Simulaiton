@@ -16,7 +16,7 @@ public class ParticleController : MonoBehaviour {
     }
 	
 	// Update is called once per frame
-	void Update () {
+	public void ApplyGravity () {
 
         //rb = GetComponent<Rigidbody>();
         SphereCollider sc = GetComponent<SphereCollider>();
@@ -33,5 +33,37 @@ public class ParticleController : MonoBehaviour {
             transform.position = new Vector3(pos.x, -pos.y / bouncyFactor, pos.z);
             speed = -(speed / bouncyFactor);
         }
+    }
+
+    public void CheckCollisions()
+    {
+        Vector3 pos = transform.position;
+        Debug.Log("Hello " + pos);
+    }
+
+    public Vector3 getVelocity()
+    {
+        return speed;
+    }
+
+    public void setVelocity(Vector3 v)
+    {
+        speed = v;
+    }
+
+    public float getRadius()
+    {
+        SphereCollider sc = GetComponent<SphereCollider>();
+        return sc.radius;
+    }
+
+    public Vector3 getCenter()
+    {
+        return transform.position;
+    }
+
+    public float getBouncyFactor()
+    {
+        return bouncyFactor;
     }
 }
