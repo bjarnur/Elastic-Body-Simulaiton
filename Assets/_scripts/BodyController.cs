@@ -11,6 +11,8 @@ public class BodyController : MonoBehaviour {
     public float avg_weight = 1;
     public GameObject particle;
     public float coefficientOfRepulsion = 1.0f;
+    public float groundCoefficientOfRepulsion = 10.0f;
+    public float energyLeakUponBounce = 0.9f;
 
     private List<GameObject> particles = new List<GameObject>();
     
@@ -161,22 +163,19 @@ public class BodyController : MonoBehaviour {
         {
             GameObject pInstance1 = particles[i];
             ParticleController particle1 = pInstance1.GetComponent<ParticleController>();
-            for (int j = 0; j < particles.Count; j++)
-            {
-                if (!collide[i]) continue;
+            if (!collide[i]) continue;
 
-                //TODO: Get ground object
+            //TODO: Get ground object
 
-                float bounce = particle1.getBouncyFactor();
-                Vector3 v = particle1.getVelocity()
-                            + Time.deltaTime
-                            * coefficientOfRepulsion
-                            * (H[i] + H[j])
-                            * W[i]
-                            * N[i];
-                particle1.setVelocity(v);
-                //Debug.Log("v: " + v);
-            }
+            float bounce = particle1.getBouncyFactor();
+            Vector3 v = particle1.getVelocity()
+                        + Time.deltaTime
+                        * groundCoefficientOfRepulsion
+                        * (H[i])
+                        * W[i]
+                        * N[i];
+            particle1.setVelocity(v * energyLeakUponBounce);
+            //Debug.Log("v: " + v);
         }
         /*
         for (int i = 0; i < particles.Count; i++)

@@ -135,13 +135,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 414698688}
-  m_LocalRotation: {x: -0.04345342, y: 0.08707283, z: 0.0038016832, w: 0.9952465}
+  m_LocalRotation: {x: -0.043577887, y: -0.043577887, z: -0.0019026523, w: 0.99809736}
   m_LocalPosition: {x: 6.3621874, y: 1.368359, z: 7.4912205}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: -5, y: 10, z: 0}
+  m_LocalEulerAnglesHint: {x: -5, y: -5, z: 0}
 --- !u!114 &414698690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,12 +154,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   topLeft: {x: -5, y: 10, z: 0}
-  bottomRight: {x: 5, y: 8, z: 0}
-  spread: 1
+  bottomRight: {x: 5, y: 6, z: 0}
+  spread: 1.5
   weight_coefficient: 10
   avg_weight: 0
   particle: {fileID: 1730077590989810, guid: 9cb3779f237295c4d870637b4f9e6b3b, type: 2}
   coefficientOfRepulsion: 1
+  groundCoefficientOfRepulsion: 10
+  energyLeakUponBounce: 0.9
 --- !u!1 &1028396561
 GameObject:
   m_ObjectHideFlags: 0
