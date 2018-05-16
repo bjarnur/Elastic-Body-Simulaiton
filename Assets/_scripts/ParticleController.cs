@@ -1,66 +1,62 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParticleController : MonoBehaviour {
-
-    public float gravitationalForce = -0.1f;
-    public float bouncyFactor = 2f;
+public class ParticleController : AbstractParticleController
+{
     public float radius = 1f;
 
-    private Rigidbody rb;
-    private Vector3 speed = new Vector3(0, 0, 0);    
-
     // Use this for initialization
-    void Start () {
-        
+    void Start ()
+    {
+        this.weightCoefficient = 2;
     }
-	
-	// Update is called once per frame
-	public void ApplyGravity () {
-        
-        //Apply gravitational force
-        Vector3 gravity = new Vector3(0, gravitationalForce, 0);
-        speed += gravity * Time.deltaTime;
-        transform.position += speed;
 
-        /*
-        if(pos.y < 0)
+    public override float getDistance(AbstractParticleController other)
+    {
+        if(other is ParticleController)
         {
-            transform.position = new Vector3(pos.x, -pos.y / bouncyFactor, pos.z);
-            speed = (new Vector3(speed.x, -speed.y, speed.z)/ bouncyFactor);
-        }*/
+            return Vector3.Distance(this.getCenter(), other.getCenter());
+        }
+        else //HardBody
+        {
+            HardBodyController hbc = (HardBodyController)other;
+            Vector3 planeCtrPoint = new Vector3(this.getCenter().x,
+                                                //other.getCenter().y,
+                                                hbc.yPos,
+                                                0);
+            //Debug.Log(planeCtrPoint);
+            //Debug.Log(this.getCenter());
+            //Debug.Log(Vector3.Distance(this.getCenter(), planeCtrPoint));
+            return Vector3.Distance(this.getCenter(), planeCtrPoint);
+        }
     }
 
-
-    public void CheckCollisions()
+    public override Vector3 getNormalizedRelativePos(AbstractParticleController other)
     {
-        Vector3 pos = transform.position;
-        Debug.Log("Hello " + pos);
+        if(other is ParticleController)
+        {
+            return (this.getCenter() - other.getCenter()).normalized;
+        }
+        else
+        {
+            HardBodyController hbc = (HardBodyController)other;
+            Vector3 planeCtrPoint = new Vector3(this.getCenter().x,
+                                                hbc.yPos,
+                                                0);
+            return (this.getCenter() - planeCtrPoint).normalized;
+        }
     }
-
-    public Vector3 getVelocity()
-    {
-        return speed;
-    }
-
-    public void setVelocity(Vector3 v)
-    {
-        speed = v;
-    }
-
-    public float getRadius()
+    
+    public override float getRadius()
     {
         return radius;
     }
 
-    public Vector3 getCenter()
+    public override void setVelocity(Vector3 velocity)
     {
-        return transform.position;
-    }
-
-    public float getBouncyFactor()
-    {
-        return bouncyFactor;
+        //Debug.Log("setting velocity: " + velocity);
+        this.velocity = velocity; ;
     }
 }
