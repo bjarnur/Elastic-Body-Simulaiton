@@ -46,7 +46,6 @@ public class PhysicsController {
             particleVelocity += gravity * Time.deltaTime;
             particleCenter += particleVelocity;
             pc.setVelocity(particleVelocity);
-            //pc.setCenter(particleCenter);
         }
     }
 
@@ -110,6 +109,9 @@ public class PhysicsController {
             {
                 if (!collide[i, j]) continue;
 
+                GameObject pInstance2 = allParticles[i];
+                AbstractParticleController particle2 = pInstance2.GetComponent<AbstractParticleController>();
+
                 float bounce = particle1.getBouncyFactor();
                 Vector3 v = particle1.getVelocity()
                             + Time.deltaTime
@@ -125,7 +127,7 @@ public class PhysicsController {
                 Debug.Log("n: " + N[i, j]);
                 Debug.Log("v: " + v);
                 Debug.Log(particle1.getVelocity());*/
-                particle1.setVelocity(v * energyLeakUponBounce);
+                particle1.setVelocity(v * energyLeakUponBounce * particle2.getDampeningEffect());
                 //Debug.Log(particle1.getVelocity());
             }
         }

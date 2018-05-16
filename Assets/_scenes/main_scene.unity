@@ -156,12 +156,7 @@ MonoBehaviour:
   topLeft: {x: -5, y: 10, z: 0}
   bottomRight: {x: 5, y: 6, z: 0}
   spread: 1.5
-  weight_coefficient: 10
-  avg_weight: 0
   particle: {fileID: 1730077590989810, guid: 9cb3779f237295c4d870637b4f9e6b3b, type: 2}
-  coefficientOfRepulsion: 1
-  groundCoefficientOfRepulsion: 10
-  energyLeakUponBounce: 0.9
 --- !u!1 &661433584
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,13 +197,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60a751e0b5720042b33e55b85174d2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bouncyFactor: 0.9
+  bouncyFactor: 0.5
   weightCoefficient: 0
+  dampeningEffect: 1
   xPos: 0
   yPos: 0
   zPos: 0
   height: 1
   witdh: 0
+  isMovable: 0
   prefab: {fileID: 1454836074460914, guid: fbe5ed670c4da79418effa6ffe565b8e, type: 2}
 --- !u!1 &1028396561
 GameObject:

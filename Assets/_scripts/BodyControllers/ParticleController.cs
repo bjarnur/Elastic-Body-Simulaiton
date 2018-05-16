@@ -6,11 +6,10 @@ using UnityEngine;
 public class ParticleController : AbstractParticleController
 {
     public float radius = 1f;
-
-    // Use this for initialization
+    
     void Start ()
     {
-        this.weightCoefficient = 2;
+        // Use this for any initialization we might need
     }
 
     public override float getDistance(AbstractParticleController other)
@@ -19,16 +18,11 @@ public class ParticleController : AbstractParticleController
         {
             return Vector3.Distance(this.getCenter(), other.getCenter());
         }
-        else //HardBody
+        else //As of now only plane
         {
-            HardBodyController hbc = (HardBodyController)other;
             Vector3 planeCtrPoint = new Vector3(this.getCenter().x,
-                                                //other.getCenter().y,
-                                                hbc.yPos,
+                                                other.getCenter().y,
                                                 0);
-            //Debug.Log(planeCtrPoint);
-            //Debug.Log(this.getCenter());
-            //Debug.Log(Vector3.Distance(this.getCenter(), planeCtrPoint));
             return Vector3.Distance(this.getCenter(), planeCtrPoint);
         }
     }
@@ -39,11 +33,10 @@ public class ParticleController : AbstractParticleController
         {
             return (this.getCenter() - other.getCenter()).normalized;
         }
-        else
+        else //As of now only plane
         {
-            HardBodyController hbc = (HardBodyController)other;
             Vector3 planeCtrPoint = new Vector3(this.getCenter().x,
-                                                hbc.yPos,
+                                                other.getCenter().y,
                                                 0);
             return (this.getCenter() - planeCtrPoint).normalized;
         }
@@ -54,9 +47,13 @@ public class ParticleController : AbstractParticleController
         return radius;
     }
 
+    public override Vector3 getCenter()
+    {
+        return transform.position;
+    }
+
     public override void setVelocity(Vector3 velocity)
     {
-        //Debug.Log("setting velocity: " + velocity);
         this.velocity = velocity; ;
     }
 }

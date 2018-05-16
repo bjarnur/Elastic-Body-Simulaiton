@@ -7,12 +7,7 @@ public class ElasticBodyController : MonoBehaviour {
     public Vector3 topLeft;
     public Vector3 bottomRight;
     public float spread;
-    public float weight_coefficient = 10;
-    public float avg_weight = 1;
     public GameObject particle;
-    public float coefficientOfRepulsion = 1.0f;
-    public float groundCoefficientOfRepulsion = 15.0f;
-    public float energyLeakUponBounce = 0.95f;
 
     private List<GameObject> particles = new List<GameObject>();
     
@@ -34,14 +29,6 @@ public class ElasticBodyController : MonoBehaviour {
                 particles.Add(particleInstance);
             }
         }
-    }
-	
-	// Update is called once per frame
-	void Update () {
-        foreach (GameObject particleInstance in particles)
-        {
-            ParticleController pc = particleInstance.GetComponent<ParticleController>();
-        }        
     }
     
     public List<GameObject> getParticles()

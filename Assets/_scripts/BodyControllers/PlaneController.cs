@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HardBodyController : AbstractParticleController {
+public class PlaneController : AbstractParticleController {
 
     public float xPos;
     public float yPos;
@@ -17,14 +17,12 @@ public class HardBodyController : AbstractParticleController {
     {
         if (other is ParticleController)
         {
-            //TODO: This implementation assumes this is plane!!
             Vector3 planeCtrPoint = new Vector3(other.getCenter().x,
-                                                this.yPos,
+                                                this.getCenter().y,
                                                 0);
-            //Debug.Log(Vector3.Distance(other.getCenter(), planeCtrPoint));
             return Vector3.Distance(planeCtrPoint, other.getCenter());
         }
-        else return 0.0f;// TODO
+        else return 0.0f;//TODO: Cover any other plausible cases
     }
 
     public override Vector3 getNormalizedRelativePos(AbstractParticleController other)
@@ -32,12 +30,11 @@ public class HardBodyController : AbstractParticleController {
         if (other is ParticleController)
         {
             Vector3 planeCtrPoint = new Vector3(other.getCenter().x,
-                                            //this.getCenter().y,
-                                            this.yPos,
+                                            this.getCenter().y,
                                             0);
             return (planeCtrPoint - other.getCenter()).normalized;
         }
-        else return new Vector3(); //TODO
+        else return new Vector3(); //TODO: Cover any other plausible cases
     }
 
 
@@ -45,14 +42,18 @@ public class HardBodyController : AbstractParticleController {
     void Start()
     {
         prefab = Instantiate(prefab, new Vector3(xPos, yPos, zPos), Quaternion.identity);
-        this.weightCoefficient = 0;
-        Debug.Log("AAAA " + yPos);
-        Debug.Log("SDFA" + this.getCenter());
+        dampeningEffect = 0.9f;
     }
     
     public override float getRadius()
     {
-        return height / 2; //TODO assuming plane!!
+        return height / 2; 
+    }
+
+    public override Vector3 getCenter()
+    {
+        //TODO: some issues with using transpose.position, could need to sort that out
+        return new Vector3(xPos, yPos, zPos);
     }
 
     public override void setVelocity(Vector3 velocity)

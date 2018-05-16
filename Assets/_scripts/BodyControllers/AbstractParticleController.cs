@@ -6,6 +6,7 @@ public abstract class AbstractParticleController : MonoBehaviour
 {
     public float bouncyFactor = 1f;
     public float weightCoefficient = 1f;
+    public float dampeningEffect = 1f;
     protected Vector3 velocity = new Vector3(0, 0, 0);
 
     public abstract float getDistance(AbstractParticleController other);
@@ -13,6 +14,8 @@ public abstract class AbstractParticleController : MonoBehaviour
     public abstract Vector3 getNormalizedRelativePos(AbstractParticleController other);
     
     public abstract float getRadius();
+
+    public abstract Vector3 getCenter();
 
     public abstract void setVelocity(Vector3 v);
    
@@ -23,11 +26,6 @@ public abstract class AbstractParticleController : MonoBehaviour
     public Vector3 getVelocity()
     {
         return velocity;
-    }
-
-    public Vector3 getCenter()
-    {
-        return transform.position;
     }
 
     public void setCenter(Vector3 c)
@@ -43,5 +41,10 @@ public abstract class AbstractParticleController : MonoBehaviour
     public float getWeightCoefficient()
     {
         return weightCoefficient;
+    }
+
+    public float getDampeningEffect()
+    {
+        return dampeningEffect;
     }
 }

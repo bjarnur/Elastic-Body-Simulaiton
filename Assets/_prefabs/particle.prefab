@@ -96,4 +96,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bouncyFactor: 1
   weightCoefficient: 0.5
+  dampeningEffect: 1
   radius: 0.5
