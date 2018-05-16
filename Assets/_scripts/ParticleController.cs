@@ -6,6 +6,7 @@ public class ParticleController : MonoBehaviour {
 
     public float gravitationalForce = -0.1f;
     public float bouncyFactor = 2f;
+    public float radius = 1f;
 
     private Rigidbody rb;
     private Vector3 speed = new Vector3(0, 0, 0);    
@@ -17,23 +18,20 @@ public class ParticleController : MonoBehaviour {
 	
 	// Update is called once per frame
 	public void ApplyGravity () {
-
-        //rb = GetComponent<Rigidbody>();
-        SphereCollider sc = GetComponent<SphereCollider>();
-        Vector3 gravity = new Vector3(0, gravitationalForce, 0);
-        Vector3 pos = transform.position;
-        float radius = sc.radius;
-
+        
         //Apply gravitational force
+        Vector3 gravity = new Vector3(0, gravitationalForce, 0);
         speed += gravity * Time.deltaTime;
         transform.position += speed;
 
+        /*
         if(pos.y < 0)
         {
             transform.position = new Vector3(pos.x, -pos.y / bouncyFactor, pos.z);
             speed = (new Vector3(speed.x, -speed.y, speed.z)/ bouncyFactor);
-        }
+        }*/
     }
+
 
     public void CheckCollisions()
     {
@@ -53,8 +51,7 @@ public class ParticleController : MonoBehaviour {
 
     public float getRadius()
     {
-        SphereCollider sc = GetComponent<SphereCollider>();
-        return sc.radius;
+        return radius;
     }
 
     public Vector3 getCenter()

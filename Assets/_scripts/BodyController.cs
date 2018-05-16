@@ -10,6 +10,7 @@ public class BodyController : MonoBehaviour {
     public float weight_coefficient = 10;
     public float avg_weight = 1;
     public GameObject particle;
+    public float coefficientOfRepulsion = 1.0f;
 
     private List<GameObject> particles = new List<GameObject>();
     
@@ -24,6 +25,12 @@ public class BodyController : MonoBehaviour {
                 float x_use = x;
                 if (y % 2 == 0) x_use += (spread / 2);
                 GameObject particleInstance = Instantiate(particle, new Vector3(x_use, y, 0), Quaternion.identity);
+                if (y % 2 == 0)
+                {
+                    Renderer renderer = particleInstance.GetComponent<Renderer>();
+                    Material m = renderer.material;
+                    m.color = new Color(0, 1, 0);
+                }
                 particles.Add(particleInstance);
             }
         }
@@ -32,6 +39,7 @@ public class BodyController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         CheckParticleCollisions();
+        CheckPlaneCollision();
         foreach (GameObject particleInstance in particles)
         {
             ParticleController pc = particleInstance.GetComponent<ParticleController>();
@@ -65,7 +73,7 @@ public class BodyController : MonoBehaviour {
                 if (distance < radius * 2)
                 {
                     //Compute normalized relative posision
-                    N[i, j] = (centerToCheck - center).normalized;
+                    N[i, j] = (center - centerToCheck).normalized;
                     
                     //Compute 1 - distance/diameter
                     W[i, j] = Mathf.Abs(1 - (distance / (radius * 2)));
@@ -100,10 +108,72 @@ public class BodyController : MonoBehaviour {
                 */
                 Vector3 v   = particle1.getVelocity()
                             + Time.deltaTime
-                            * bounce
+                            * coefficientOfRepulsion
                             * (H[i] + H[j])
                             * W[i, j]
                             * N[i, j];
+                particle1.setVelocity(v);
+                //Debug.Log("v: " + v);
+            }
+        }
+        /*
+        for (int i = 0; i < particles.Count; i++)
+        {
+
+        }*/
+    }
+
+    void CheckPlaneCollision()
+    {
+        Vector3[] N = new Vector3[particles.Count];
+        bool[] collide = new bool[particles.Count];
+        float[] W = new float[particles.Count];
+        float[] H = new float[particles.Count];
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            GameObject pInstance1 = particles[i];
+            ParticleController particle1 = pInstance1.GetComponent<ParticleController>();
+            Vector3 center = particle1.getCenter();
+            float radius = particle1.getRadius();
+           
+            //TODO: Get ground object
+               
+            float planeCenter = -1;
+            float planeThickt = 0.5f;
+            Vector3 planeCtrPoint = new Vector3( particle1.getCenter().x, planeCenter, 0);
+            float distance = Vector3.Distance(center, planeCtrPoint);
+            if (distance < radius + planeThickt)
+            {
+                //Compute normalized relative posision
+                N[i] = (center - planeCtrPoint).normalized;
+
+                //Compute 1 - distance/diameter
+                W[i] = Mathf.Abs(1 - (distance / (radius + planeThickt)));
+
+                //Just for convenience
+                collide[i] = true;
+            }
+            H[i] = Mathf.Max(0, weight_coefficient * (W[i] - avg_weight));            
+        }
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            GameObject pInstance1 = particles[i];
+            ParticleController particle1 = pInstance1.GetComponent<ParticleController>();
+            for (int j = 0; j < particles.Count; j++)
+            {
+                if (!collide[i]) continue;
+
+                //TODO: Get ground object
+
+                float bounce = particle1.getBouncyFactor();
+                Vector3 v = particle1.getVelocity()
+                            + Time.deltaTime
+                            * coefficientOfRepulsion
+                            * (H[i] + H[j])
+                            * W[i]
+                            * N[i];
                 particle1.setVelocity(v);
                 //Debug.Log("v: " + v);
             }
