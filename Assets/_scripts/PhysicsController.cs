@@ -9,8 +9,8 @@ public class PhysicsController {
     List<GameObject> hardBodies = new List<GameObject>();
 
     public float gravitationalForce = -0.1f;
-    public float avg_weight = 0.01f; //Needs to be very low to get a "firm bounce" 
-    public float energyLeakUponBounce = 0.99f; //Pretty fun to experiment with, can simulate different materials 
+    public float avg_weight = 0f; //Needs to be very low to get a "firm bounce" 
+    public float energyLeakUponBounce = 0.9f; //Pretty fun to experiment with, can simulate different materials 
     public float coefficientOfRepulsion = 10.0f; //TODO: Maybe want to be able to set separately per bodies?
 
     public void DoUpdate ()
@@ -85,7 +85,6 @@ public class PhysicsController {
 
                 if (distance < radius)
                 {
-                    Debug.Log("collision " + i + " - " + j);
                     //Compute normalized relative posision
                     N[i, j] = particle1.getNormalizedRelativePos(particle2);
 
@@ -138,9 +137,47 @@ public class PhysicsController {
 
     }
 
-    void PreventPenetration()
+    void PreventPenetration(AbstractParticleController particleCtrl)
     {
+        Vector3 positionStart = particleCtrl.getCenter();
+        Vector3 positionEnd = positionStart + particleCtrl.getVelocity();
+        
+        Vector3 ultimatePosition = new Vector3();
+        bool intersectHappened = false;
+        foreach (GameObject hardBody in hardBodies)
+        {
+            bool intersect;
+            Vector3 planeNorm;
+            Vector3 intersectionPoint; 
+            PlaneController planeCtrl = hardBody.GetComponent<PlaneController>();
+            intersect = planeCtrl.getLineIntersection(out intersectionPoint, 
+                                                           out planeNorm, 
+                                                           positionStart, positionEnd);
+            if(intersect)
+            {
+                if (intersectHappened)
+                {
+                    Vector3 tempPosition = intersectionPoint + (planeNorm * planeCtrl.getRadius());
+                    float currentDistance = Vector3.Distance(positionStart, ultimatePosition);
+                    float newDistance = Vector3.Distance(positionStart, tempPosition);
+                    if (newDistance < currentDistance)
+                        ultimatePosition = tempPosition;
+                } else
+                {
+                    ultimatePosition = intersectionPoint + (planeNorm * planeCtrl.getRadius());
+                    intersectHappened = true;
+                }
+            }
+        }
 
+        if (intersectHappened)
+        {
+            particleCtrl.setCenter(ultimatePosition);
+        }
+        else
+        {
+            particleCtrl.setCenter(positionEnd);
+        }
     }
 
     void UpdatePositions()
@@ -149,7 +186,8 @@ public class PhysicsController {
         foreach(GameObject particle in allParticles)
         {
             AbstractParticleController ctrl = particle.GetComponent<AbstractParticleController>();
-            ctrl.setCenter(ctrl.getCenter() + ctrl.getVelocity());
+            //ctrl.setCenter(ctrl.getCenter() + ctrl.getVelocity());
+            PreventPenetration(ctrl);
         }
     }
 

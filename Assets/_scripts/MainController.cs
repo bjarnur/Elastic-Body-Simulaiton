@@ -11,6 +11,8 @@ public class MainController : MonoBehaviour {
 
     void Start ()
     {
+        //Alternative to using a prefab
+        //Debug.DrawLine(new Vector3(-5, 5, 0), new Vector3(5, 5, 0), Color.white, 2);
         physicsController = new PhysicsController();
         physicsController.setParticles(particles);
         physicsController.setElasticBodies(elasticBodies);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 public class PlaneController : AbstractParticleController {
@@ -37,11 +38,39 @@ public class PlaneController : AbstractParticleController {
         else return new Vector3(); //TODO: Cover any other plausible cases
     }
 
+    public bool getLineIntersection(out Vector3 intersectPoint, out Vector3 planeNorm, 
+                                    Vector3 lineOrigin, Vector3 lineEnd)
+    {
+        Vector3 point1 = new Vector3(xPos, yPos + (height), zPos);
+        Vector3 point2 = new Vector3(xPos + 10, yPos + (height), zPos);
+        Vector3 point3 = new Vector3(xPos, yPos + (height), zPos + 10);
+        planeNorm = Utilities.GetPlaneNormal(point1, point2, point3);
+
+        Vector3 lineDirection = (lineEnd - lineOrigin).normalized;
+
+        bool parallel = Utilities.LinePlaneIntersection(out intersectPoint, 
+                                                        lineOrigin, 
+                                                        lineDirection, 
+                                                        planeNorm, point1);
+
+        if(!parallel)
+        {
+            float distToIntersect = Vector3.Distance(lineOrigin, intersectPoint);
+            float distLine = Vector3.Distance(lineOrigin, lineEnd);
+            if (distToIntersect <= distLine)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // Use this for initialization
     void Start()
     {
         prefab = Instantiate(prefab, new Vector3(xPos, yPos, zPos), Quaternion.identity);
+        //Debug.DrawLine(new Vector3(xPos - 20, yPos, 0), new Vector3(xPos + 20, yPos, 0), Color.white, 2);
         dampeningEffect = 0.9f;
     }
     
