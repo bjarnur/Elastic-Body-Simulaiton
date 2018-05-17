@@ -43,7 +43,7 @@ public class PlaneController : AbstractParticleController {
         Plane plane = new Plane(planeNorm, pointOnPlane);
         Vector3 closestPointOnPlane = plane.ClosestPointOnPlane(ctrl.getCenter());
         //Debug.Log("Closes point on plane " + closestPointOnPlane);
-        Vector3 directionToPoint = ctrl.getCenter() - closestPointOnPlane;
+        Vector3 directionToPoint =  closestPointOnPlane - ctrl.getCenter();
         return ctrl.getCenter() + (directionToPoint.normalized * ctrl.getRadius());
     }
 
@@ -54,11 +54,21 @@ public class PlaneController : AbstractParticleController {
         Vector3 point3 = new Vector3(xPos, yPos + (height / 2), zPos + 10);
 
         planeNorm = Utilities.GetPlaneNormal(point1, point2, point3);
+        if (Vector3.Dot(planeNorm, ctrl.getVelocity()) > 0)
+        {
+            intersectPoint = new Vector3();
+            return false;
+        }
+
         Vector3 lineOrigin = getPointClosestToPlane(ctrl, planeNorm, point1);
         Vector3 lineEnd = lineOrigin + ctrl.getVelocity();
-
-
         Vector3 lineDirection = (lineOrigin - lineEnd).normalized;
+        /*
+        Debug.Log("line origin " + lineOrigin);
+        Debug.Log("line direction " + lineDirection);
+        Debug.Log("plane norm " + planeNorm);
+        Debug.Log("ponit on plane " + point1    );
+        */
 
         bool parallel = Utilities.LinePlaneIntersection(out intersectPoint, 
                                                         lineOrigin, 
