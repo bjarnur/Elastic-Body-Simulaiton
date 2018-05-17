@@ -27,6 +27,8 @@ public class ParticleController : AbstractParticleController
         }
     }
 
+    /**      
+     Used to set the direction of the force applied to particles */
     public override Vector3 getNormalizedRelativePos(AbstractParticleController other)
     {
         if(other is ParticleController)

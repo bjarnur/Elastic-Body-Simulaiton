@@ -38,26 +38,45 @@ public class PlaneController : AbstractParticleController {
         else return new Vector3(); //TODO: Cover any other plausible cases
     }
 
-    public bool getLineIntersection(out Vector3 intersectPoint, out Vector3 planeNorm, 
-                                    Vector3 lineOrigin, Vector3 lineEnd)
+    public Vector3 getPointClosestToPlane(ParticleController ctrl, Vector3 planeNorm, Vector3 pointOnPlane)
     {
-        Vector3 point1 = new Vector3(xPos, yPos + (height), zPos);
-        Vector3 point2 = new Vector3(xPos + 10, yPos + (height), zPos);
-        Vector3 point3 = new Vector3(xPos, yPos + (height), zPos + 10);
-        planeNorm = Utilities.GetPlaneNormal(point1, point2, point3);
+        Plane plane = new Plane(planeNorm, pointOnPlane);
+        Vector3 closestPointOnPlane = plane.ClosestPointOnPlane(ctrl.getCenter());
+        //Debug.Log("Closes point on plane " + closestPointOnPlane);
+        Vector3 directionToPoint = ctrl.getCenter() - closestPointOnPlane;
+        return ctrl.getCenter() + (directionToPoint.normalized * ctrl.getRadius());
+    }
 
-        Vector3 lineDirection = (lineEnd - lineOrigin).normalized;
+    public bool checkParticleCollision(out Vector3 intersectPoint, out Vector3 planeNorm, ParticleController ctrl)
+    {   
+        Vector3 point1 = new Vector3(xPos, yPos + (height / 2), zPos);
+        Vector3 point2 = new Vector3(xPos + 10, yPos + (height / 2), zPos);
+        Vector3 point3 = new Vector3(xPos, yPos + (height / 2), zPos + 10);
+
+        planeNorm = Utilities.GetPlaneNormal(point1, point2, point3);
+        Vector3 lineOrigin = getPointClosestToPlane(ctrl, planeNorm, point1);
+        Vector3 lineEnd = lineOrigin + ctrl.getVelocity();
+
+
+        Vector3 lineDirection = (lineOrigin - lineEnd).normalized;
 
         bool parallel = Utilities.LinePlaneIntersection(out intersectPoint, 
                                                         lineOrigin, 
                                                         lineDirection, 
                                                         planeNorm, point1);
 
-        if(!parallel)
+        if(parallel)
         {
-            float distToIntersect = Vector3.Distance(lineOrigin, intersectPoint);
-            float distLine = Vector3.Distance(lineOrigin, lineEnd);
-            if (distToIntersect <= distLine)
+            //Debug.Log("Particle center " + ctrl.getCenter());
+            //Debug.Log("Intersect point " + intersectPoint);
+            intersectPoint = intersectPoint + planeNorm * ctrl.getRadius();
+            //float distLine = Vector3.Distance(lineOrigin, lineEnd);
+            float distLine = Vector3.Magnitude(ctrl.getVelocity());
+            float distToIntersect = Vector3.Distance(ctrl.getCenter(), intersectPoint);
+            //Debug.Log("movign to center " + intersectPoint);
+            //Debug.Log("distance to intersect: " + distToIntersect);
+            //Debug.Log("distance of line: " + distLine);
+            if (distToIntersect < distLine)
             {
                 return true;
             }

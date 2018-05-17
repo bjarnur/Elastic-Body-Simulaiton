@@ -46,7 +46,13 @@ public class Utilities
         }
     }
 
-    //create a vector of direction "vector" with length "size"
+
+    /**
+       Author: Bit Barrel Media
+       Source: http://wiki.unity3d.com/index.php/3d_Math_functions
+
+       create a vector of direction "vector" with length "size"
+   */
     public static Vector3 SetVectorLength(Vector3 vector, float size)
     {
 
@@ -61,7 +67,7 @@ public class Utilities
     {
         Vector3 vec1 = (point1 - origin).normalized;
         Vector3 vec2 = (point2 - origin).normalized;
-        return Vector3.Cross(vec1, vec2).normalized;
+        return Vector3.Cross(vec2, vec1).normalized;
     }
 
 }
