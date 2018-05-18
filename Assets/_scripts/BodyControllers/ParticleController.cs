@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParticleController : AbstractParticleController
+public class ParticleController : AbstractBodyController
 {
     public float radius = 1f;
     
     void Start ()
     {
         // Use this for any initialization we might need
+        isMovable = true;
     }
 
-    public override float getDistance(AbstractParticleController other)
+    public float getDistance(AbstractBodyController other)
     {
         if(other is ParticleController)
         {
@@ -29,7 +30,7 @@ public class ParticleController : AbstractParticleController
 
     /**      
      Used to set the direction of the force applied to particles */
-    public override Vector3 getNormalizedRelativePos(AbstractParticleController other)
+    public Vector3 getNormalizedRelativePos(AbstractBodyController other)
     {
         if(other is ParticleController)
         {
@@ -43,19 +44,9 @@ public class ParticleController : AbstractParticleController
             return (this.getCenter() - planeCtrPoint).normalized;
         }
     }
-    
-    public override float getRadius()
+
+    public float getRadius()
     {
         return radius;
-    }
-
-    public override Vector3 getCenter()
-    {
-        return transform.position;
-    }
-
-    public override void setVelocity(Vector3 velocity)
-    {
-        this.velocity = velocity; ;
     }
 }

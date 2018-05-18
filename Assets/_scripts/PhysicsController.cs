@@ -8,7 +8,7 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -0.1f;
+    public float gravitationalForce = -0.2f;
     public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.99f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
@@ -51,7 +51,7 @@ public class PhysicsController {
 
     void CheckCollision()
     {        
-        List<GameObject> allParticles = getAllElasticParticles();
+        List<ParticleController> allParticles = getAllElasticParticles();
         //Debug.Log(allParticles.Count);
         CheckCollision(allParticles);
     }
@@ -61,7 +61,7 @@ public class PhysicsController {
      free particles (not part of Elastic Bodies), all particles from 
      Elastic Bodies, and all Hard Bodies (where each hard body is 
      interpreted as a single particle). */
-    void CheckCollision(List<GameObject> allParticles)
+    void CheckCollision(List<ParticleController> allParticles)
     {
         Vector3[,] N = new Vector3[allParticles.Count, allParticles.Count];
         bool[,] collide = new bool[allParticles.Count, allParticles.Count];
@@ -70,17 +70,15 @@ public class PhysicsController {
 
         for (int i = 0; i < allParticles.Count; i++)
         {
-            GameObject pInstance1 = allParticles[i];
-            AbstractParticleController particle1 = pInstance1.GetComponent<AbstractParticleController>();
+            ParticleController particle1 = allParticles[i];
             Vector3 center = particle1.getCenter();
             float W_i = 0.0f;
 
             for (int j = 0; j < allParticles.Count; j++)
             {
-                GameObject pInstance2 = allParticles[j];
-                if (Object.ReferenceEquals(pInstance1, pInstance2)) continue;
+                ParticleController particle2 = allParticles[j];
+                if (Object.ReferenceEquals(particle1, particle2)) continue;
 
-                AbstractParticleController particle2 = pInstance2.GetComponent<AbstractParticleController>();
                 float radius = particle1.getRadius() + particle2.getRadius();
                 float distance = particle1.getDistance(particle2);
 
@@ -114,15 +112,12 @@ public class PhysicsController {
         //Update each particle in the system
         for (int i = 0; i < allParticles.Count; i++)
         {
-            GameObject pInstance1 = allParticles[i];
-            AbstractParticleController particle1 = pInstance1.GetComponent<AbstractParticleController>();
+            ParticleController particle1 = allParticles[i];
             for (int j = 0; j < allParticles.Count; j++)
             {
                 if (!collide[i, j]) continue;
 
-                GameObject pInstance2 = allParticles[i];
-                AbstractParticleController particle2 = pInstance2.GetComponent<AbstractParticleController>();                
-
+                ParticleController particle2 = allParticles[i];
                 float bounce = particle1.getBouncyFactor();
                 Vector3 v = particle1.getVelocity()
                             + Time.deltaTime
@@ -152,20 +147,6 @@ public class PhysicsController {
     void ApplyElasticForce()
     {
 
-    }
-
-    void PreventPenetration()
-    {
-        List<GameObject> allParticles = getAllParticles();
-        foreach (GameObject particle in allParticles)
-        {
-            AbstractParticleController ctrl = particle.GetComponent<AbstractParticleController>();
-            if (ctrl is ParticleController)
-            {
-                ParticleController particleCtrl = (ParticleController)ctrl;
-                PreventPenetration(particleCtrl);
-            }
-        }
     }
 
     void PreventPenetration(ParticleController particleCtrl)
@@ -222,20 +203,21 @@ public class PhysicsController {
 
     void UpdatePositions()
     {
-        List<GameObject> allParticles = getAllParticles();
-        foreach(GameObject particle in allParticles)
+        List<AbstractBodyController> allBodies = getAllMovableBodies();
+        foreach(AbstractBodyController body in allBodies)
         {
-            AbstractParticleController ctrl = particle.GetComponent<AbstractParticleController>();
-            if (ctrl is ParticleController)
-                PreventPenetration((ParticleController)ctrl);
+            if (body is ParticleController)
+                PreventPenetration((ParticleController)body);
             else
-                ctrl.setCenter(ctrl.getCenter() + ctrl.getVelocity());
+                body.setCenter(body.getCenter() + body.getVelocity());
         }
     }
 
-    List<GameObject> getAllParticles()
+    List<AbstractBodyController> getAllMovableBodies()
     {
         List<GameObject> allParticles = new List<GameObject>();
+        List<AbstractBodyController> allParticleControllers = new List<AbstractBodyController>();
+
         allParticles.AddRange(hardBodies);
         allParticles.AddRange(particles);
         foreach (GameObject elasticBody in elasticBodies)
@@ -243,19 +225,33 @@ public class PhysicsController {
             ElasticBodyController bc = elasticBody.GetComponent<ElasticBodyController>();
             allParticles.AddRange(bc.getParticles());
         }
-        return allParticles;
+
+        foreach (GameObject particle in allParticles)
+        {
+            AbstractBodyController ctrl = particle.GetComponent<AbstractBodyController>();
+            allParticleControllers.Add(ctrl);
+        }
+        return allParticleControllers;
     }
 
-    List<GameObject> getAllElasticParticles()
+    List<ParticleController> getAllElasticParticles()
     {
         List<GameObject> allParticles = new List<GameObject>();
+        List<ParticleController> allParticleControllers = new List<ParticleController>();
+
         allParticles.AddRange(particles);
         foreach (GameObject elasticBody in elasticBodies)
         {
             ElasticBodyController bc = elasticBody.GetComponent<ElasticBodyController>();
             allParticles.AddRange(bc.getParticles());
         }
-        return allParticles;
+
+        foreach(GameObject particle in allParticles)
+        {
+            ParticleController ctrl = particle.GetComponent<ParticleController>();
+            allParticleControllers.Add(ctrl);
+        }
+        return allParticleControllers;
     }
 
     public void setParticles(List<GameObject> particles)
