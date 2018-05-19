@@ -8,9 +8,9 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -0.2f;
-    public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
-    public float energyLeakUponBounce = 0.99f; //Pretty fun to experiment with, can simulate different materials 
+    public float gravitationalForce = -0.05f;
+    public float avg_weight = 0f; //Needs to be very low to get a "firm bounce" 
+    public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
     public float coefficientOfRepulsion = 10.0f; //TODO: Maybe want to be able to set separately per bodies?
 
@@ -19,6 +19,7 @@ public class PhysicsController {
         //PreventPenetration();        
         ApplyGravity();
         CheckCollision();
+        ApplyElasticForce();
         UpdatePositions();
     }
 
@@ -95,7 +96,7 @@ public class PhysicsController {
                     N[i, j] = particle1.getNormalizedRelativePos(particle2);
 
                     //Compute 1 - distance/diameter
-                    W[i, j] = Mathf.Max(0, 1 - (distance / (radius)));
+                    W[i, j] = Mathf.Max(0, (1 - (distance / (radius))));
                     W_i += W[i, j];
 
                     //Just for convenience
@@ -144,9 +145,24 @@ public class PhysicsController {
         }
     }
 
+    float springConstant = 0.5f;
+
     void ApplyElasticForce()
     {
-
+        List<ParticleController> particles = getAllElasticParticles();
+        foreach(ParticleController particle in particles)
+        {
+            List<float> distancesToNeighbors = particle.getNeighborDistances();
+            List<ParticleController> neighbors = particle.getNeighbors();
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                Vector3 diff    = Time.deltaTime 
+                                * springConstant 
+                                * (particle.getDistance(neighbors[i]) - distancesToNeighbors[i])
+                                * particle.getNormalizedRelativePos(neighbors[i]);
+                particle.setVelocity(particle.getVelocity() + diff);
+            }
+        }
     }
 
     void PreventPenetration(ParticleController particleCtrl)

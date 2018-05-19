@@ -6,7 +6,10 @@ using UnityEngine;
 public class ParticleController : AbstractBodyController
 {
     public float radius = 1f;
-    
+
+    List<float> distancesToNeighbors = new List<float>();
+    List<ParticleController> neighbors = new List<ParticleController>();    
+
     void Start ()
     {
         // Use this for any initialization we might need
@@ -48,5 +51,21 @@ public class ParticleController : AbstractBodyController
     public float getRadius()
     {
         return radius;
+    }
+
+    public void addNeighbor(ParticleController particle, float distance)
+    {
+        this.neighbors.Add(particle);
+        this.distancesToNeighbors.Add(distance);
+    }
+
+    public List<ParticleController> getNeighbors()
+    {
+        return neighbors;
+    }
+
+    public List<float> getNeighborDistances()
+    {
+        return distancesToNeighbors;
     }
 }
