@@ -42,6 +42,7 @@ public class ElasticBodyController : MonoBehaviour {
         //Initialize a list of nearest neigbors and distances to them
         for (int i = 0; i < particles.Count; i++)
         {
+            List<ParticleController> addedNeighbors = new List<ParticleController>();
             for(int x = -1; x <= 1; x++)
             {
                 ParticleController ctrl = particles[i].GetComponent<ParticleController>();
@@ -51,7 +52,11 @@ public class ElasticBodyController : MonoBehaviour {
                     if (idx >= 0 && idx < (particles.Count) && idx != i)
                     {
                         ParticleController neighbor = particles[idx].GetComponent<ParticleController>();
-                        ctrl.addNeighbor(neighbor, ctrl.getDistance(neighbor));
+                        if(!addedNeighbors.Contains(neighbor))
+                        {
+                            ctrl.addNeighbor(neighbor, ctrl.getDistance(neighbor));
+                            addedNeighbors.Add(neighbor);
+                        }
                     }
                 }
             }

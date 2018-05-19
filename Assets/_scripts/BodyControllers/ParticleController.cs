@@ -37,7 +37,7 @@ public class ParticleController : AbstractBodyController
     {
         if(other is ParticleController)
         {
-            return (this.getCenter() - other.getCenter()).normalized;
+            return (other.getCenter() - this.getCenter()).normalized;
         }
         else //As of now only plane
         {

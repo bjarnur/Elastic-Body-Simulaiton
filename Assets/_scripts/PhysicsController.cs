@@ -8,18 +8,19 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -0.05f;
+    public float gravitationalForce = -0.1f;
     public float avg_weight = 0f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
-    public float coefficientOfRepulsion = 10.0f; //TODO: Maybe want to be able to set separately per bodies?
+    public float coefficientOfRepulsion = -10.0f; //TODO: Maybe want to be able to set separately per bodies?
+    float springConstant = 2f;
 
     public void DoUpdate ()
     {
         //PreventPenetration();        
         ApplyGravity();
-        CheckCollision();
         ApplyElasticForce();
+        CheckCollision();        
         UpdatePositions();
     }
 
@@ -145,8 +146,6 @@ public class PhysicsController {
         }
     }
 
-    float springConstant = 0.5f;
-
     void ApplyElasticForce()
     {
         List<ParticleController> particles = getAllElasticParticles();
@@ -157,8 +156,8 @@ public class PhysicsController {
             for (int i = 0; i < neighbors.Count; i++)
             {
                 Vector3 diff    = Time.deltaTime 
-                                * springConstant 
-                                * (particle.getDistance(neighbors[i]) - distancesToNeighbors[i])
+                                * springConstant
+                                * (neighbors[i].getDistance(particle) - distancesToNeighbors[i])
                                 * particle.getNormalizedRelativePos(neighbors[i]);
                 particle.setVelocity(particle.getVelocity() + diff);
             }
