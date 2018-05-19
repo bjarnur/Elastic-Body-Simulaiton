@@ -49,12 +49,12 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1730077590989810}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 0
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 9592732e2879ce745afbff34cabecbac, type: 2}
   m_StaticBatchInfo:
@@ -94,7 +94,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26313192b966e76498cf3adb2283d191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMovable: 0
   bouncyFactor: 1
-  weightCoefficient: 0.5
   dampeningEffect: 1
+  weightCoefficient: 0.5
   radius: 0.5
