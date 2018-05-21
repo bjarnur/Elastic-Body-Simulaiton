@@ -345,6 +345,13 @@ public class PhysicsController {
         Vector3[] thisAABB = getAABB(thisParticle.getCenter(), thisEndPos, thisParticle.getRadius());
         Vector3[] otherAABB = getAABB(otherParticle.getCenter(), otherEndPos, otherParticle.getRadius());
 
+        //if (start == 0)
+        //  GUI.Box(new Rect(thisAABB[1].x, thisAABB[0].x, thisAABB[1].y, thisAABB[0].x), "foo");
+
+        Debug.Log("current " + thisParticle.getCenter() + " other " + otherParticle.getCenter());
+        Debug.Log("top left 1 " + thisAABB[0] + " bottom right 1" + thisAABB[1]);
+        Debug.Log("top left 2 " + otherAABB[0] + " bottom right 2" + otherAABB[1]);
+
         bool xOverlap = (thisAABB[0].x < otherAABB[1].x) && (thisAABB[1].x > otherAABB[0].x);
         bool yOverlap = (thisAABB[0].y > otherAABB[1].y) && (thisAABB[1].y < otherAABB[0].y);
         if (xOverlap && yOverlap)
@@ -359,7 +366,8 @@ public class PhysicsController {
                 return true;
             }
 
-            if (timeDiff < 0.01) return false;
+            if (    Vector3.Distance(thisParticle.getCenter(), thisEndPos) < 1 &&
+                    Vector3.Distance(otherParticle.getCenter(), otherEndPos) < 1) return false;
 
             bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + timeDiff);
             bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + timeDiff, end);
