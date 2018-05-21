@@ -8,22 +8,73 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -0.1f;
-    public float avg_weight = 0f; //Needs to be very low to get a "firm bounce" 
+    public float gravitationalForce = -5f;
+    public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
     public float coefficientOfRepulsion = -10.0f; //TODO: Maybe want to be able to set separately per bodies?
-    float springConstant = 2f;
+    float springConstant = 10f;
 
     public void DoUpdate ()
     {
         //PreventPenetration();        
         ApplyGravity();
+        CheckCollision();
         ApplyElasticForce();
-        CheckCollision();        
         UpdatePositions();
     }
 
+    /* Just experimenting
+    void ApplyTensileForces()
+    {
+        List<ParticleController> allParticles = getAllElasticParticles();
+        Vector3[,] N = new Vector3[allParticles.Count, allParticles.Count];
+        Vector3[] S = new Vector3[allParticles.Count];
+        float[,] W = new float[allParticles.Count, allParticles.Count];
+        float[] W_list = new float[allParticles.Count];
+
+        for (int i = 0; i < allParticles.Count; i++)
+        {
+            ParticleController particle1 = allParticles[i];
+            Vector3 center = particle1.getCenter();
+            float W_i = 0.0f;
+
+            for (int j = 0; j < allParticles.Count; j++)
+            {
+                ParticleController particle2 = allParticles[j];
+                if (Object.ReferenceEquals(particle1, particle2)) continue;
+
+                float radius = particle1.getRadius() + particle2.getRadius();
+                float distance = particle1.getDistance(particle2);
+
+                N[i, j] = particle1.getNormalizedRelativePos(particle2);
+                W[i, j] = Mathf.Max(0, (1 - (distance / (radius))));
+                S[i] += ((1 - W[i, j]) * (W[i, j]) * (N[i, j]));
+
+                W_list[i] += W[i, j];
+            }
+        }
+
+        for (int i = 0; i < allParticles.Count; i++)
+        {
+            ParticleController particle1 = allParticles[i];
+            Vector3 center = particle1.getCenter();
+
+            for (int j = 0; j < allParticles.Count; j++)
+            {
+                ParticleController particle2 = allParticles[j];
+                if (Object.ReferenceEquals(particle1, particle2)) continue;
+
+                float a = 0.2f;
+                float b = 0.2f;
+
+                float A = a * (W_list[i] + W_list[j] - (2 * avg_weight));
+                float B = b * Vector3.Dot(S[j] - S[i], N[i, j]);
+                particle1.setVelocity(particle1.getVelocity() - (Time.deltaTime *
+                                                                ((A + B) * N[i, j])));
+            }
+        }
+    }*/
     void ApplyGravity()
     {
         foreach(GameObject elasticBody in elasticBodies)
@@ -159,12 +210,19 @@ public class PhysicsController {
                                 * springConstant
                                 * (neighbors[i].getDistance(particle) - distancesToNeighbors[i])
                                 * particle.getNormalizedRelativePos(neighbors[i]);
-                particle.setVelocity(particle.getVelocity() + diff);
+
+                Vector3 finalPos = particle.getCenter() + diff;
+                if(Vector3.Distance(particle.getCenter(), finalPos) < Vector3.Distance(particle.getCenter(), neighbors[i].getCenter()))
+                {
+                    particle.setVelocity(particle.getVelocity() + diff);
+                }                
+
+                //if (Vector3.Magnitude(diff) > 100) Debug.Log(Time.deltaTime);
             }
         }
     }
 
-    void PreventPenetration(ParticleController particleCtrl)
+    Vector3 GetFinalPosition(ParticleController particleCtrl)
     {
         Vector3 positionStart = particleCtrl.getCenter();
         Vector3 positionEnd = positionStart + particleCtrl.getVelocity();
@@ -206,27 +264,102 @@ public class PhysicsController {
             particleCtrl.setVelocity(new Vector3(particleCtrl.getVelocity().x,
                                                  -particleCtrl.getVelocity().y,
                                                  particleCtrl.getVelocity().z) * energyLeakUponGroundContact);
-            particleCtrl.setCenter(ultimatePosition/* + particleCtrl.getVelocity()*/);
+            //particleCtrl.setCenter(ultimatePosition/* + particleCtrl.getVelocity()*/);
+            return ultimatePosition;
             //Debug.Log("overriding location!");
             //Debug.Log("velocity: " + particleCtrl.getVelocity().x + ", " + particleCtrl.getVelocity().y);
         }
         else
         {
-            particleCtrl.setCenter(positionEnd);
+            //particleCtrl.setCenter(positionEnd);
+            return positionEnd;
         }
+
+    }
+
+    Vector3[] getAABB(Vector3 startPos, Vector3 endPos, float radius)
+    {
+        Vector3[] AABB = new Vector3[3];
+        Vector3 topLeft = new Vector3(Mathf.Min(endPos.x, startPos.x) - radius,
+                                             Mathf.Max(endPos.y, startPos.y) + radius,
+                                             0);
+        Vector3 bottomRight = new Vector3(Mathf.Max(endPos.x, startPos.x) + radius,
+                                          Mathf.Min(endPos.y, startPos.y) - radius,
+                                     0);
+        AABB[0] = topLeft;
+        AABB[1] = bottomRight;
+        AABB[2] = endPos;
+        return AABB;
     }
 
     void UpdatePositions()
     {
+        Dictionary<ParticleController, Vector3[]> ParticleAABB = new Dictionary<ParticleController, Vector3[]>();
         List<AbstractBodyController> allBodies = getAllMovableBodies();
+        List<ParticleController> elasticBodies = getAllElasticParticles();       
         foreach(AbstractBodyController body in allBodies)
         {
+            //All particles slowly lose energy with time
+            body.setVelocity(body.getVelocity() * 0.99f);
+
             if (body is ParticleController)
-                PreventPenetration((ParticleController)body);
+            {
+                ParticleController particle = (ParticleController)body;
+                Vector3 finalPosition = GetFinalPosition(particle);
+                Vector3[] AABB = getAABB(particle.getCenter(), finalPosition, particle.getRadius());
+                ParticleAABB.Add((ParticleController) body, AABB);
+            }
             else
+            {
                 body.setCenter(body.getCenter() + body.getVelocity());
+            }
+        }
+
+        //Broad stage collision detection
+        foreach(ParticleController thisParticle in elasticBodies)
+        {
+            foreach (ParticleController otherParticle in elasticBodies)
+            {
+                if (Object.ReferenceEquals(thisParticle, otherParticle)) continue;            
+                bool intersect = IntervalColliionCheck(thisParticle, otherParticle, 0, Time.deltaTime);
+                if(intersect)
+                {
+                    Debug.Log("Definitely a collision!");
+                }
+            }
+
+            thisParticle.setCenter(ParticleAABB[thisParticle][2]);
         }
     }
+
+    bool IntervalColliionCheck(ParticleController thisParticle, ParticleController otherParticle, float start, float end)
+    {
+        float timeDiff = end - start;
+        Vector3 thisEndPos = thisParticle.getCenter() + (thisParticle.getVelocity() * timeDiff);
+        Vector3 otherEndPos = otherParticle.getCenter() + (otherParticle.getVelocity() * timeDiff);
+        Vector3[] thisAABB = getAABB(thisParticle.getCenter(), thisEndPos, thisParticle.getRadius());
+        Vector3[] otherAABB = getAABB(otherParticle.getCenter(), otherEndPos, otherParticle.getRadius());
+
+        bool xOverlap = (thisAABB[0].x < otherAABB[1].x) && (thisAABB[1].x > otherAABB[0].x);
+        bool yOverlap = (thisAABB[0].y > otherAABB[1].y) && (thisAABB[1].y < otherAABB[0].y);
+        if (xOverlap && yOverlap)
+        {
+            Debug.Log("Maybe a collision");
+            float midTime = 0.5f * timeDiff;
+            if(Vector3.Distance(thisEndPos, otherEndPos) < thisParticle.getRadius() + otherParticle.getRadius())
+            {
+                return true;
+            }
+
+            bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + timeDiff);
+            bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + timeDiff, end);
+
+            return firstCheck || secondCheck;
+        }
+        return false;
+    }
+
+    
 
     List<AbstractBodyController> getAllMovableBodies()
     {
