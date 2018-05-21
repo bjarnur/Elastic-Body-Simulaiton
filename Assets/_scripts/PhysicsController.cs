@@ -8,7 +8,7 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -5f;
+    public float gravitationalForce = -1f;
     public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
@@ -327,7 +327,9 @@ public class PhysicsController {
                     Debug.Log("Definitely a collision!");
                 }
             }
-
+        }
+        foreach (ParticleController thisParticle in elasticBodies)
+        {
             thisParticle.setCenter(ParticleAABB[thisParticle][2]);
         }
     }
@@ -335,6 +337,9 @@ public class PhysicsController {
     bool IntervalColliionCheck(ParticleController thisParticle, ParticleController otherParticle, float start, float end)
     {
         float timeDiff = end - start;
+        //Debug.Log("Start  " + start);
+        //Debug.Log("End " + end);
+        //Debug.Log("Diff  " + timeDiff);
         Vector3 thisEndPos = thisParticle.getCenter() + (thisParticle.getVelocity() * timeDiff);
         Vector3 otherEndPos = otherParticle.getCenter() + (otherParticle.getVelocity() * timeDiff);
         Vector3[] thisAABB = getAABB(thisParticle.getCenter(), thisEndPos, thisParticle.getRadius());
@@ -348,8 +353,13 @@ public class PhysicsController {
             float midTime = 0.5f * timeDiff;
             if(Vector3.Distance(thisEndPos, otherEndPos) < thisParticle.getRadius() + otherParticle.getRadius())
             {
+                //Debug.Log("Curent locations " + thisParticle.getCenter() + " and " + otherParticle.getCenter());
+                //Debug.Log("Velocities " + thisParticle.getVelocity() + " and " + otherParticle.getVelocity());
+                //Debug.Log("Distance " + Vector3.Distance(thisEndPos, otherEndPos));
                 return true;
             }
+
+            if (timeDiff < 0.01) return false;
 
             bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + timeDiff);
             bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + timeDiff, end);

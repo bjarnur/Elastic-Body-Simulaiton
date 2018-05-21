@@ -153,8 +153,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57c6e1ab75bcd0c4f8afcd9059410226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topLeft: {x: -20, y: 30, z: 0}
-  bottomRight: {x: -10, y: 25, z: 0}
+  topLeft: {x: -12, y: 30, z: 0}
+  bottomRight: {x: -10, y: 28, z: 0}
   spread: 1.5
   particle: {fileID: 1730077590989810, guid: 9cb3779f237295c4d870637b4f9e6b3b, type: 2}
   color: {r: 0, g: 0.751724, b: 1, a: 1}
@@ -430,8 +430,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57c6e1ab75bcd0c4f8afcd9059410226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topLeft: {x: 32, y: 40, z: 0}
-  bottomRight: {x: 20, y: 32, z: 0}
+  topLeft: {x: -11, y: 40, z: 0}
+  bottomRight: {x: -9, y: 38, z: 0}
   spread: 1.5
   particle: {fileID: 1730077590989810, guid: 9cb3779f237295c4d870637b4f9e6b3b, type: 2}
   color: {r: 0, g: 1, b: 0.42068958, a: 1}
