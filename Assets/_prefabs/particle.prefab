@@ -97,5 +97,5 @@ MonoBehaviour:
   isMovable: 0
   bouncyFactor: 1
   dampeningEffect: 1
-  weightCoefficient: 0.5
+  weightCoefficient: 50
   radius: 0.5
