@@ -7,6 +7,8 @@ public class ParticleController : AbstractBodyController
 {
     public float radius = 1f;
 
+    private float remainingTime = 1f;
+
     List<float> distancesToNeighbors = new List<float>();
     List<ParticleController> neighbors = new List<ParticleController>();    
 
@@ -46,6 +48,14 @@ public class ParticleController : AbstractBodyController
                                                 0);
             return (this.getCenter() - planeCtrPoint).normalized;
         }
+    }
+
+    public void setRemainingTime(float time) {
+        remainingTime = time;
+    }
+
+    public float getRemainingTime() {
+        return remainingTime;
     }
 
     public float getRadius()

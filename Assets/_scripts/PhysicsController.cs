@@ -8,7 +8,7 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -1f;
+    public float gravitationalForce = -5f;
     public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
@@ -197,6 +197,10 @@ public class PhysicsController {
         }
     }
 
+    void HandleCollision (ParticleController thisParticle, ParticleController otherParticle) {
+        
+    }
+
     void ApplyElasticForce()
     {
         List<ParticleController> particles = getAllElasticParticles();
@@ -320,11 +324,17 @@ public class PhysicsController {
         {
             foreach (ParticleController otherParticle in elasticBodies)
             {
-                if (Object.ReferenceEquals(thisParticle, otherParticle)) continue;            
-                bool intersect = IntervalColliionCheck(thisParticle, otherParticle, 0, Time.deltaTime);
+                if (Object.ReferenceEquals(thisParticle, otherParticle)) continue;
+                //bool intersect = IntervalColliionCheck(thisParticle, otherParticle, 0, Time.deltaTime);
+                float hit;
+                bool intersect = IntervalCollisionCheck(thisParticle, otherParticle, 0, 1.0f, out hit);
                 if(intersect)
                 {
-                    Debug.Log("Definitely a collision!");
+                    thisParticle.setCenter(thisParticle.getCenter() + thisParticle.getVelocity() * hit);
+                    otherParticle.setCenter(otherParticle.getCenter() + otherParticle.getVelocity() * hit);
+                    thisParticle.setRemainingTime(1.0f - hit);
+                    otherParticle.setRemainingTime(1.0f - hit);
+                    HandleCollision(thisParticle, otherParticle);
                 }
             }
         }
@@ -369,14 +379,56 @@ public class PhysicsController {
             if (    Vector3.Distance(thisParticle.getCenter(), thisEndPos) < 1 &&
                     Vector3.Distance(otherParticle.getCenter(), otherEndPos) < 1) return false;
 
-            bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + timeDiff);
-            bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + timeDiff, end);
+            bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + midTime);
+            bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + midTime, end);
 
             return firstCheck || secondCheck;
         }
         return false;
     }
 
+    bool IntervalCollisionCheck(ParticleController thisParticle, ParticleController otherParticle, float start, float end, out float hit) 
+    {
+        hit = 0.0f;
+        //Debug.Log("start " + start);
+        //Debug.Log("end " + end);
+
+        float thisParticleMaximumMove = ParticleMaximumMove(thisParticle, start, end);
+        float otherParticleMaximumMove = ParticleMaximumMove(otherParticle, start, end);
+        float maxMoveDistance = thisParticleMaximumMove + otherParticleMaximumMove;
+
+        float minimumDistanceAtStart = MinimumDistanceAtTime(thisParticle, otherParticle, start);
+        if (minimumDistanceAtStart > maxMoveDistance)
+            return false;
+        float minimumDistanceAtEnd = MinimumDistanceAtTime(thisParticle, otherParticle, end);
+        if (minimumDistanceAtEnd > maxMoveDistance)
+            return false;
+
+        if (end - start <  0.01) {
+            hit = start;
+            Debug.Log(end);
+            return true;
+        }
+
+        float mid = (start + end) * 0.5f;
+        if (IntervalCollisionCheck(thisParticle, otherParticle, start, mid, out hit))
+            return true;
+        else
+            return IntervalCollisionCheck(thisParticle, otherParticle, mid, end, out hit);
+    }
+
+    float ParticleMaximumMove(ParticleController particle, float start, float end)
+    {
+        return Vector3.Distance(particle.getCenter() + particle.getVelocity() * start, particle.getCenter() + particle.getVelocity() * (end - start));
+    }
+
+    float MinimumDistanceAtTime(ParticleController firstParticle, ParticleController secondParticle, float time) 
+    {
+        Vector3 firstEndPos = firstParticle.getCenter() + firstParticle.getVelocity() * time;
+        Vector3 secondEndPos = secondParticle.getCenter() + secondParticle.getVelocity() * time;
+
+        return Vector3.Distance(firstEndPos, secondEndPos) - firstParticle.getRadius() - secondParticle.getRadius();
+    }
     
 
     List<AbstractBodyController> getAllMovableBodies()
