@@ -37,7 +37,7 @@ public class PlaneController : AbstractBodyController {
         }
 
         Vector3 lineOrigin = getPointClosestToPlane(ctrl, planeNorm, point1);
-        Vector3 lineEnd = lineOrigin + ctrl.getVelocity();
+        Vector3 lineEnd = lineOrigin + (ctrl.getVelocity() * Time.deltaTime);
         Vector3 lineDirection = (lineOrigin - lineEnd).normalized;
         /*
         Debug.Log("line origin " + lineOrigin);
@@ -54,7 +54,7 @@ public class PlaneController : AbstractBodyController {
         if(parallel)
         {
             intersectPoint = intersectPoint + planeNorm * ctrl.getRadius();            
-            float distLine = Vector3.Magnitude(ctrl.getVelocity());
+            float distLine = Vector3.Magnitude(ctrl.getVelocity() * Time.deltaTime);
             float distToIntersect = Vector3.Distance(ctrl.getCenter(), intersectPoint);
 
             //Debug.Log("Particle center " + ctrl.getCenter());

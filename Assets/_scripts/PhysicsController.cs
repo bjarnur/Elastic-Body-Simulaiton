@@ -8,7 +8,7 @@ public class PhysicsController {
     List<GameObject> elasticBodies = new List<GameObject>();
     List<GameObject> hardBodies = new List<GameObject>();
 
-    public float gravitationalForce = -5f;
+    public float gravitationalForce = -9.8f;
     public float avg_weight = 0.0005f; //Needs to be very low to get a "firm bounce" 
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
@@ -229,7 +229,7 @@ public class PhysicsController {
     Vector3 GetFinalPosition(ParticleController particleCtrl)
     {
         Vector3 positionStart = particleCtrl.getCenter();
-        Vector3 positionEnd = positionStart + particleCtrl.getVelocity();
+        Vector3 positionEnd = positionStart + (particleCtrl.getVelocity() * Time.deltaTime);
         //Debug.Log("velocity: " + particleCtrl.getVelocity());
         Vector3 ultimatePosition = new Vector3();
         bool intersectHappened = false;
@@ -327,6 +327,7 @@ public class PhysicsController {
                 if (Object.ReferenceEquals(thisParticle, otherParticle)) continue;
                 //bool intersect = IntervalColliionCheck(thisParticle, otherParticle, 0, Time.deltaTime);
                 float hit;
+
                 bool intersect = IntervalCollisionCheck(thisParticle, otherParticle, 0, 1.0f, out hit);
                 if(intersect)
                 {
@@ -404,9 +405,9 @@ public class PhysicsController {
         if (minimumDistanceAtEnd > maxMoveDistance)
             return false;
 
-        if (end - start <  0.01) {
+        if (end - start <  0.1) {
             hit = start;
-            Debug.Log(end);
+            //Debug.Log(end);
             return true;
         }
 
