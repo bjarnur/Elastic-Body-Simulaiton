@@ -13,7 +13,7 @@ public class PhysicsController {
     public float energyLeakUponBounce = 0.95f; //Pretty fun to experiment with, can simulate different materials 
     public float energyLeakUponGroundContact = 0.8f;
     public float coefficientOfRepulsion = -10.0f; //TODO: Maybe want to be able to set separately per bodies?
-    float springConstant = 10f;
+    float springConstant = 50f;
 
     public void DoUpdate ()
     {
@@ -328,8 +328,8 @@ public class PhysicsController {
                 //bool intersect = IntervalColliionCheck(thisParticle, otherParticle, 0, Time.deltaTime);
                 float hit;
 
-                bool intersect = IntervalCollisionCheck(thisParticle, otherParticle, 0, 1.0f, out hit);
-                if(intersect)
+                //bool intersect = IntervalCollisionCheck(thisParticle, otherParticle, 0, 1.0f, out hit);
+                if(false)
                 {
                     thisParticle.setCenter(thisParticle.getCenter() + thisParticle.getVelocity() * hit);
                     otherParticle.setCenter(otherParticle.getCenter() + otherParticle.getVelocity() * hit);

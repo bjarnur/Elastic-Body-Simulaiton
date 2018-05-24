@@ -16,11 +16,12 @@ public class ElasticBodyController : MonoBehaviour {
     
     void Start () {
 
+        List<List<GameObject>> particleMatrix = new List<List<GameObject>>();
         int particlesPerRow = 0;
-        for(float x = topLeft.x; x < bottomRight.x; x += spread)
+        for (float y = topLeft.y; y > bottomRight.y; y -= spread)
         {
-            particlesPerRow++;
-            for (float y = topLeft.y; y > bottomRight.y; y -= spread)
+            List<GameObject> rowParticles = new List<GameObject>();
+            for (float x = topLeft.x; x < bottomRight.x; x += spread)
             {
                 float x_use = x;
                 //if (y % 2 == 0) x_use += (spread / 2);
@@ -35,30 +36,49 @@ public class ElasticBodyController : MonoBehaviour {
                     Material m = renderer.material;
                     m.color = new Color(0, 1, 0);
                 }*/
-                particles.Add(particleInstance);
+                rowParticles.Add(particleInstance);
+                if(y == topLeft.y)
+                    particlesPerRow++;
             }
+            particleMatrix.Add(rowParticles);
         }
 
         //Initialize a list of nearest neigbors and distances to them
-        for (int i = 0; i < particles.Count; i++)
+        for (int i = 0; i < particleMatrix.Count; i++)
         {
-            List<ParticleController> addedNeighbors = new List<ParticleController>();
-            for(int x = -1; x <= 1; x++)
+            for (int j = 0; j < particleMatrix[i].Count; j++)
             {
-                ParticleController ctrl = particles[i].GetComponent<ParticleController>();
-                for (int y = -1; y <= 1; y++)
+                List<ParticleController> addedNeighbors = new List<ParticleController>();
+                for (int x = -3; x <= 3; x++)
                 {
-                    int idx = (i + (particlesPerRow * x) + y);
-                    if (idx >= 0 && idx < (particles.Count) && idx != i)
+                    ParticleController ctrl = particleMatrix[i][j].GetComponent<ParticleController>();
+                    for (int y = -3; y <= 3; y++)
                     {
-                        ParticleController neighbor = particles[idx].GetComponent<ParticleController>();
-                        if(!addedNeighbors.Contains(neighbor))
+                        if (x == 0 && y == 0)
+                            continue;
+
+                        if (i + x >= 0 && i + x < particleMatrix.Count && j + y >= 0 && j+y < particleMatrix[i].Count)
                         {
-                            ctrl.addNeighbor(neighbor, ctrl.getDistance(neighbor));
-                            addedNeighbors.Add(neighbor);
+                            ParticleController neighbor = particleMatrix[i + x][j + y].GetComponent<ParticleController>();
+                            if (!addedNeighbors.Contains(neighbor))
+                            {
+                                ctrl.addNeighbor(neighbor, ctrl.getDistance(neighbor));
+                                addedNeighbors.Add(neighbor);
+                            }
                         }
                     }
                 }
+                if (i == 0)
+                {
+                    Debug.Log(addedNeighbors.Count);
+                    Debug.Log("Our position: " + particleMatrix[i][j].GetComponent<ParticleController>().getCenter());
+                    foreach (ParticleController neighboringParticle in addedNeighbors)
+                    {
+                        Debug.Log("Neighbor " + neighboringParticle.getCenter());
+                    }
+
+                }
+                particles.Add(particleMatrix[i][j]);
             }
         }
     }
