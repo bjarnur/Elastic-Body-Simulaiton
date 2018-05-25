@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   topLeft: {x: -20, y: 30, z: 0}
-  bottomRight: {x: -15, y: 5, z: 0}
+  bottomRight: {x: -15, y: 25, z: 0}
   spread: 1.1
   particle: {fileID: 1730077590989810, guid: 9cb3779f237295c4d870637b4f9e6b3b, type: 2}
   color: {r: 0, g: 0.751724, b: 1, a: 1}
@@ -199,8 +199,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isMovable: 0
-  bouncyFactor: 0.5
-  dampeningEffect: 1
   weightCoefficient: 0
   xPos: 0
   yPos: 1
@@ -418,7 +416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1570839623
 MonoBehaviour:
   m_ObjectHideFlags: 0
