@@ -24,18 +24,10 @@ public class ElasticBodyController : MonoBehaviour {
             for (float x = topLeft.x; x < bottomRight.x; x += spread)
             {
                 float x_use = x;
-                //if (y % 2 == 0) x_use += (spread / 2);
                 GameObject particleInstance = Instantiate(particle, new Vector3(x_use, y, 0), Quaternion.identity);
                 Renderer renderer = particleInstance.GetComponent<Renderer>();
                 Material m = renderer.material;
                 m.color = color;
-                /*
-                if (y % 2 == 0)
-                {
-                    Renderer renderer = particleInstance.GetComponent<Renderer>();
-                    Material m = renderer.material;
-                    m.color = new Color(0, 1, 0);
-                }*/
                 rowParticles.Add(particleInstance);
                 if(y == topLeft.y)
                     particlesPerRow++;

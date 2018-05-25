@@ -8,8 +8,6 @@ using UnityEngine;
 public abstract class AbstractBodyController : MonoBehaviour
 {
     public bool isMovable = false;
-    public float bouncyFactor = 1f;    
-    public float dampeningEffect = 1f;
     public float weightCoefficient = 1f;
 
     protected Vector3 velocity = new Vector3(0, 0, 0);
@@ -38,18 +36,8 @@ public abstract class AbstractBodyController : MonoBehaviour
         transform.position = c;
     }
 
-    public float getBouncyFactor()
-    {
-        return bouncyFactor;
-    }
-
     public float getWeightCoefficient()
     {
         return weightCoefficient;
-    }
-
-    public float getDampeningEffect()
-    {
-        return dampeningEffect;
     }
 }

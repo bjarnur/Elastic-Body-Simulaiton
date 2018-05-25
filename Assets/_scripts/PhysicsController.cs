@@ -24,57 +24,7 @@ public class PhysicsController {
         UpdatePositions();
     }
 
-    /* Just experimenting
-    void ApplyTensileForces()
-    {
-        List<ParticleController> allParticles = getAllElasticParticles();
-        Vector3[,] N = new Vector3[allParticles.Count, allParticles.Count];
-        Vector3[] S = new Vector3[allParticles.Count];
-        float[,] W = new float[allParticles.Count, allParticles.Count];
-        float[] W_list = new float[allParticles.Count];
 
-        for (int i = 0; i < allParticles.Count; i++)
-        {
-            ParticleController particle1 = allParticles[i];
-            Vector3 center = particle1.getCenter();
-            float W_i = 0.0f;
-
-            for (int j = 0; j < allParticles.Count; j++)
-            {
-                ParticleController particle2 = allParticles[j];
-                if (Object.ReferenceEquals(particle1, particle2)) continue;
-
-                float radius = particle1.getRadius() + particle2.getRadius();
-                float distance = particle1.getDistance(particle2);
-
-                N[i, j] = particle1.getNormalizedRelativePos(particle2);
-                W[i, j] = Mathf.Max(0, (1 - (distance / (radius))));
-                S[i] += ((1 - W[i, j]) * (W[i, j]) * (N[i, j]));
-
-                W_list[i] += W[i, j];
-            }
-        }
-
-        for (int i = 0; i < allParticles.Count; i++)
-        {
-            ParticleController particle1 = allParticles[i];
-            Vector3 center = particle1.getCenter();
-
-            for (int j = 0; j < allParticles.Count; j++)
-            {
-                ParticleController particle2 = allParticles[j];
-                if (Object.ReferenceEquals(particle1, particle2)) continue;
-
-                float a = 0.2f;
-                float b = 0.2f;
-
-                float A = a * (W_list[i] + W_list[j] - (2 * avg_weight));
-                float B = b * Vector3.Dot(S[j] - S[i], N[i, j]);
-                particle1.setVelocity(particle1.getVelocity() - (Time.deltaTime *
-                                                                ((A + B) * N[i, j])));
-            }
-        }
-    }*/
     void ApplyGravity()
     {
         foreach(GameObject elasticBody in elasticBodies)
@@ -85,7 +35,6 @@ public class PhysicsController {
 
         ApplyGravity(particles);
 
-        //TODO Implement gravity for hard bodies
     }
 
     void ApplyGravity(List<GameObject> effectedParticles)
@@ -171,7 +120,6 @@ public class PhysicsController {
                 if (!collide[i, j]) continue;
 
                 ParticleController particle2 = allParticles[i];
-                float bounce = particle1.getBouncyFactor();
                 Vector3 v = particle1.getVelocity()
                             + Time.deltaTime
                             * coefficientOfRepulsion
@@ -320,6 +268,10 @@ public class PhysicsController {
         }
 
         //Broad stage collision detection
+
+        //This is the tunneling prevetion code, currently not used.
+
+        /*
         foreach(ParticleController thisParticle in elasticBodies)
         {
             foreach (ParticleController otherParticle in elasticBodies)
@@ -338,56 +290,17 @@ public class PhysicsController {
                     HandleCollision(thisParticle, otherParticle);
                 }
             }
-        }
+        }*/
+
+
         foreach (ParticleController thisParticle in elasticBodies)
         {
             thisParticle.setCenter(ParticleAABB[thisParticle][2]);
         }
     }
 
-    bool IntervalColliionCheck(ParticleController thisParticle, ParticleController otherParticle, float start, float end)
-    {
-        float timeDiff = end - start;
-        //Debug.Log("Start  " + start);
-        //Debug.Log("End " + end);
-        //Debug.Log("Diff  " + timeDiff);
-        Vector3 thisEndPos = thisParticle.getCenter() + (thisParticle.getVelocity() * timeDiff);
-        Vector3 otherEndPos = otherParticle.getCenter() + (otherParticle.getVelocity() * timeDiff);
-        Vector3[] thisAABB = getAABB(thisParticle.getCenter(), thisEndPos, thisParticle.getRadius());
-        Vector3[] otherAABB = getAABB(otherParticle.getCenter(), otherEndPos, otherParticle.getRadius());
 
-        //if (start == 0)
-        //  GUI.Box(new Rect(thisAABB[1].x, thisAABB[0].x, thisAABB[1].y, thisAABB[0].x), "foo");
-
-        Debug.Log("current " + thisParticle.getCenter() + " other " + otherParticle.getCenter());
-        Debug.Log("top left 1 " + thisAABB[0] + " bottom right 1" + thisAABB[1]);
-        Debug.Log("top left 2 " + otherAABB[0] + " bottom right 2" + otherAABB[1]);
-
-        bool xOverlap = (thisAABB[0].x < otherAABB[1].x) && (thisAABB[1].x > otherAABB[0].x);
-        bool yOverlap = (thisAABB[0].y > otherAABB[1].y) && (thisAABB[1].y < otherAABB[0].y);
-        if (xOverlap && yOverlap)
-        {
-            Debug.Log("Maybe a collision");
-            float midTime = 0.5f * timeDiff;
-            if(Vector3.Distance(thisEndPos, otherEndPos) < thisParticle.getRadius() + otherParticle.getRadius())
-            {
-                //Debug.Log("Curent locations " + thisParticle.getCenter() + " and " + otherParticle.getCenter());
-                //Debug.Log("Velocities " + thisParticle.getVelocity() + " and " + otherParticle.getVelocity());
-                //Debug.Log("Distance " + Vector3.Distance(thisEndPos, otherEndPos));
-                return true;
-            }
-
-            if (    Vector3.Distance(thisParticle.getCenter(), thisEndPos) < 1 &&
-                    Vector3.Distance(otherParticle.getCenter(), otherEndPos) < 1) return false;
-
-            bool firstCheck = IntervalColliionCheck(thisParticle, otherParticle, start, start + midTime);
-            bool secondCheck = IntervalColliionCheck(thisParticle, otherParticle, start + midTime, end);
-
-            return firstCheck || secondCheck;
-        }
-        return false;
-    }
-
+    //Interval halving collision check
     bool IntervalCollisionCheck(ParticleController thisParticle, ParticleController otherParticle, float start, float end, out float hit) 
     {
         hit = 0.0f;

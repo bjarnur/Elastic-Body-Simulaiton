@@ -75,6 +75,5 @@ public class PlaneController : AbstractBodyController {
     void Start()
     {
         prefab = Instantiate(prefab, new Vector3(xPos, yPos, zPos), Quaternion.identity);
-        dampeningEffect = 0.9f;
     }
 }
